@@ -7,7 +7,10 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PermisoDto {
+public class ProductoDto {
     private int id;
     private String nombre;
+    private String despricion;
+    private int stock;
+    private double precio;
 }

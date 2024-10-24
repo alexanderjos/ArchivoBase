@@ -1,30 +1,43 @@
 package com.valverde.facturacion.almacen.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.valverde.facturacion.almacen.entity.Categoria;
+import com.valverde.facturacion.almacen.entity.Producto;
 import com.valverde.facturacion.almacen.exception.GeneralException;
 import com.valverde.facturacion.almacen.exception.NoDataFoundException;
 import com.valverde.facturacion.almacen.exception.ValidateException;
-import com.valverde.facturacion.almacen.repository.CategoriaRepository;
-import com.valverde.facturacion.almacen.service.CategoriaService;
-import com.valverde.facturacion.almacen.validator.CategoriaValidator;
-
-import java.util.List;
+import com.valverde.facturacion.almacen.repository.ProductoRepository;
+import com.valverde.facturacion.almacen.service.ProductoService;
+import com.valverde.facturacion.almacen.validator.ProductoValidator;
 
 @Service
-public class CategoriaServiceImpl implements CategoriaService {
-    @Autowired
-    private CategoriaRepository repository;
+public class ProductoServiceImpl  implements ProductoService{
 
+    @Autowired
+    private ProductoRepository repository;
+    
     @Override
     @Transactional(readOnly = true)
-    public List<Categoria> findAll(Pageable page) {
+    public List<Producto> findAll(Pageable page) {
         try {
-            List<Categoria> registros = repository.findAll(page).toList();
+            List<Producto> registros = repository.findAll(page).toList();
+            return registros;
+        } catch (ValidateException | NoDataFoundException e) {
+            throw e;
+        } catch (GeneralException e) {
+            throw new GeneralException("Error del servidorr");
+        }
+    }
+
+    @Override
+    public List<Producto> findAll() {
+        try {
+            List<Producto> registros = repository.findAll();
             return registros;
         } catch (ValidateException | NoDataFoundException e) {
             throw e;
@@ -35,9 +48,9 @@ public class CategoriaServiceImpl implements CategoriaService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Categoria> findByNombre(String nombre, Pageable page) {
+    public List<Producto> findByNombre(String nombre, Pageable page) {
         try {
-            List<Categoria> registros = repository.findByNombreContaining(nombre, page);
+            List<Producto> registros = repository.findByNombreContaining(nombre, page);
             return registros;
         } catch (ValidateException | NoDataFoundException e) {
             throw e;
@@ -47,10 +60,9 @@ public class CategoriaServiceImpl implements CategoriaService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public Categoria findById(int id) {
+    public Producto findById(int id) {
         try {
-            Categoria registro = repository.findById(id)
+            Producto registro = repository.findById(id)
                     .orElseThrow(() -> new NoDataFoundException("No existe un registro como ese id"));
             return registro;
         } catch (ValidateException | NoDataFoundException e) {
@@ -62,19 +74,21 @@ public class CategoriaServiceImpl implements CategoriaService {
 
     @Override
     @Transactional
-    public Categoria save(Categoria categoria) {
+    public Producto save(Producto producto) {
         try {
-            CategoriaValidator.save(categoria);
+            ProductoValidator.save(producto);
 
-            if(categoria.getId() == 0) {
-                Categoria nuevo = repository.save(categoria);
+            if(producto.getId() == 0) {
+                Producto nuevo = repository.save(producto);
                 return nuevo;
             }
 
-            Categoria registro = repository.findById(categoria.getId())
+            Producto registro = repository.findById(producto.getId())
                     .orElseThrow(() -> new NoDataFoundException("No existe un registro como ese id"));
-            registro.setNombre(categoria.getNombre());
-            registro.setDescripcion(categoria.getDescripcion());
+            registro.setNombre(producto.getNombre());
+            registro.setDescripcion(producto.getDescripcion());
+            registro.setPrecio(producto.getPrecio());
+            registro.setStock(producto.getStock());
             repository.save(registro);
 
             return registro;
@@ -85,11 +99,11 @@ public class CategoriaServiceImpl implements CategoriaService {
         }
     }
 
-    @Transactional
     @Override
+    @Transactional
     public void delete(int id) {
         try {
-            Categoria registro = repository.findById(id)
+            Producto registro = repository.findById(id)
                     .orElseThrow(() -> new NoDataFoundException("No existe un registro como ese id"));
             repository.delete(registro);
         } catch (ValidateException | NoDataFoundException e) {
@@ -99,15 +113,4 @@ public class CategoriaServiceImpl implements CategoriaService {
         }
     }
 
-    @Override
-    public List<Categoria> findAll() {
-        try {
-            List<Categoria> registros = repository.findAll();
-            return registros;
-        } catch (ValidateException | NoDataFoundException e) {
-            throw e;
-        } catch (GeneralException e) {
-            throw new GeneralException("Error del servidorr");
-        }
-    }
 }
