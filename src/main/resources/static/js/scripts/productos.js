@@ -124,7 +124,7 @@ function clear() {
     $("#modal-title").text("Nuevo producto");
     $("#nombre").val("");
     $("#descripcion").val("");
-    $("#stock").val("");
+    $("#Stock").val("");
     $("#precio").val("");
     $("#guardar").data("id", 0).data("bandera", 1);
 }
